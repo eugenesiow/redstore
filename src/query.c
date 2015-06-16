@@ -92,6 +92,48 @@ CLEANUP:
 }
 
 
+static redhttp_response_t *perform_tpf(redhttp_request_t * request,
+                                       const char *s_string, const char *p_string, const char *o_string)
+{
+  redhttp_response_t *response = NULL;
+
+  librdf_node *s = NULL;
+  if(s_string) {
+    s = librdf_new_node_from_uri_string(world, s_string);
+  }
+  librdf_node *p = NULL;
+  if(p_string) {
+    p = librdf_new_node_from_uri_string(world, p_string);
+  }
+  librdf_node *o = NULL;
+  if(o_string) {
+    if(librdf_heuristic_object_is_literal(o_string)) {
+      o = librdf_new_node_from_literal(world, o_string, NULL, 0);
+    } else {
+      o = librdf_new_node_from_uri_string(world, o_string);
+    }
+
+  }
+
+  librdf_statement *statement = librdf_new_statement_from_nodes(world, s, p, o);
+
+  librdf_stream *stream = librdf_model_find_statements(model,statement);
+
+  if (stream) {
+    response = format_graph_stream_as_ttl(request,stream);
+//    response = format_graph_stream(request, stream);
+    librdf_free_stream(stream);
+  }
+
+  if (s)
+    librdf_free_node(s);
+  if (p)
+    librdf_free_node(p);
+  if (o)
+    librdf_free_node(o);
+
+  return response;
+}
 
 
 redhttp_response_t *handle_query(redhttp_request_t * request, void *user_data)
@@ -105,6 +147,19 @@ redhttp_response_t *handle_query(redhttp_request_t * request, void *user_data)
   } else {
     return handle_page_query_form(request, user_data);
   }
+}
+
+redhttp_response_t *handle_tpf(redhttp_request_t * request, void *user_data)
+{
+  const char *s_string = NULL;
+  const char *p_string = NULL;
+  const char *o_string = NULL;
+
+  s_string = redhttp_request_get_argument(request, "s");
+  p_string = redhttp_request_get_argument(request, "p");
+  o_string = redhttp_request_get_argument(request, "o");
+
+  return perform_tpf(request, s_string, p_string, o_string);
 }
 
 redhttp_response_t *handle_sparql(redhttp_request_t * request, void *user_data)

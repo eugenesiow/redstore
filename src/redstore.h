@@ -109,6 +109,7 @@ redhttp_response_t *handle_page_load_form(redhttp_request_t * request, void *use
 
 redhttp_response_t *handle_query(redhttp_request_t * request, void *user_data);
 redhttp_response_t *handle_sparql(redhttp_request_t * request, void *user_data);
+redhttp_response_t *handle_tpf(redhttp_request_t * request, void *user_data);
 redhttp_response_t *handle_page_robots_txt(redhttp_request_t * request, void *user_data);
 
 redhttp_response_t *redstore_page_new(int code, const char *title);
@@ -155,6 +156,7 @@ redhttp_response_t *format_bindings_query_result(redhttp_request_t * request,
                                                  librdf_query_results * results);
 
 redhttp_response_t *format_graph_stream(redhttp_request_t * request, librdf_stream * stream);
+redhttp_response_t *format_graph_stream_as_ttl(redhttp_request_t * request, librdf_stream * stream);
 
 redhttp_response_t *handle_image_favicon(redhttp_request_t * request, void *user_data);
 

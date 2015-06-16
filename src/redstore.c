@@ -226,6 +226,7 @@ static redhttp_server_t *redstore_setup_http_server()
   redhttp_server_add_handler(server, NULL, NULL, reset_error_buffer, NULL);
   redhttp_server_add_handler(server, "GET", "/query", handle_query, NULL);
   redhttp_server_add_handler(server, "GET", "/sparql", handle_sparql, NULL);
+  redhttp_server_add_handler(server, "GET", "/tpf", handle_tpf, NULL);
   redhttp_server_add_handler(server, "GET", "/sparql/", handle_sparql, NULL);
   redhttp_server_add_handler(server, "POST", "/query", handle_query, NULL);
   redhttp_server_add_handler(server, "POST", "/sparql", handle_sparql, NULL);
@@ -426,6 +427,8 @@ cleanup:
   reset_error_buffer(NULL, NULL);
 
   // Clean up librdf
+  if (storage && librdf_storage_close(storage))
+    redstore_warn("Error while closing storage.");
   if (model)
     librdf_free_model(model);
   if (storage)

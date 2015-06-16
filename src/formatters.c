@@ -74,6 +74,26 @@ CLEANUP:
   return response;
 }
 
+redhttp_response_t *format_graph_stream_as_ttl(redhttp_request_t * request, librdf_stream * stream)
+{
+  FILE *socket = redhttp_request_get_socket(request);
+  redhttp_response_t *response = NULL;
+  librdf_serializer *serialiser = librdf_new_serializer(world, "turtle", NULL, NULL);
+
+  // Send back the response headers
+  response = redhttp_response_new(REDHTTP_OK, NULL);
+  redhttp_response_add_header(response, "Content-Type", "text/turtle");
+  redhttp_response_send(response, request);
+  if (librdf_serializer_serialize_stream_to_file_handle(serialiser, socket, NULL, stream)) {
+    redstore_error("Failed to serialize graph");
+    // FIXME: send error message to client?
+  }
+  if (serialiser)
+    librdf_free_serializer(serialiser);
+
+  return response;
+}
+
 
 redhttp_response_t *format_bindings_query_result(redhttp_request_t * request,
                                                  librdf_query_results * results)
